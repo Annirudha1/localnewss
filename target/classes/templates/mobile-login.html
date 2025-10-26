@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalNews - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d2e;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .otp-inputs {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .otp-input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+        }
+
+        .resend-otp {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .resend-otp button {
+            background: none;
+            border: none;
+            color: #667eea;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>📺 LocalNews</h1>
+            <p>HD News Videos for UP Districts</p>
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+        <div id="successMessage" class="success-message" style="display: none;"></div>
+
+        <!-- Step 1: Mobile Number -->
+        <div id="step1" class="step active">
+            <form id="mobileForm">
+                <div class="form-group">
+                    <label for="mobileNumber">Mobile Number</label>
+                    <input type="tel" id="mobileNumber" placeholder="Enter 10-digit mobile number"
+                           pattern="[6-9]\d{9}" maxlength="10" required>
+                </div>
+                <button type="submit" class="btn" id="sendOtpBtn">
+                    Send OTP
+                </button>
+            </form>
+        </div>
+
+        <!-- Step 2: OTP Verification -->
+        <div id="step2" class="step">
+            <form id="otpForm">
+                <div class="form-group">
+                    <label>Enter OTP sent to <span id="sentToNumber"></span></label>
+                    <div class="otp-inputs">
+                        <input type="text" class="otp-input" maxlength="1" pattern="\d">
+                        <input type="text" class="otp-input" maxlength="1" pattern="\d">
+                        <input type="text" class="otp-input" maxlength="1" pattern="\d">
+                        <input type="text" class="otp-input" maxlength="1" pattern="\d">
+                        <input type="text" class="otp-input" maxlength="1" pattern="\d">
+                        <input type="text" class="otp-input" maxlength="1" pattern="\d">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="district">Select Your District</label>
+                    <select id="district" required>
+                        <option value="">Choose your district</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn" id="verifyOtpBtn">
+                    Verify & Login
+                </button>
+
+                <div class="resend-otp">
+                    <button type="button" id="resendOtpBtn" onclick="resendOtp()">
+                        Resend OTP
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentMobile = '';
+        let otpResendTimer = 0;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if already logged in
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                validateTokenAndRedirect(token);
+            }
+
+            loadDistricts();
+            setupOTPInputs();
+            setupForms();
+        });
+
+        async function validateTokenAndRedirect(token) {
+            try {
+                const response = await fetch('/api/auth/validate-token', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    window.location.href = '/video-feed';
+                }
+            } catch (error) {
+                console.log('Token validation failed:', error);
+            }
+        }
+
+        async function loadDistricts() {
+            try {
+                const response = await fetch('/api/auth/districts');
+                if (response.ok) {
+                    const districts = await response.json();
+                    const select = document.getElementById('district');
+
+                    districts.forEach(district => {
+                        const option = document.createElement('option');
+                        option.value = district.id;
+                        option.textContent = district.name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                showError('Failed to load districts');
+            }
+        }
+
+        function setupOTPInputs() {
+            const inputs = document.querySelectorAll('.otp-input');
+
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', function(e) {
+                    if (e.target.value.length === 1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+            });
+        }
+
+        function setupForms() {
+            document.getElementById('mobileForm').addEventListener('submit', handleSendOtp);
+            document.getElementById('otpForm').addEventListener('submit', handleVerifyOtp);
+        }
+
+        async function handleSendOtp(e) {
+            e.preventDefault();
+
+            const mobileNumber = document.getElementById('mobileNumber').value;
+
+            if (!/^[6-9]\d{9}$/.test(mobileNumber)) {
+                showError('Please enter a valid 10-digit mobile number');
+                return;
+            }
+
+            const btn = document.getElementById('sendOtpBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Sending OTP...';
+
+            try {
+                const response = await fetch('/api/auth/send-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ mobileNumber })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentMobile = mobileNumber;
+                    document.getElementById('sentToNumber').textContent = mobileNumber;
+                    showStep(2);
+                    showSuccess(data.message);
+                    startResendTimer();
+                } else {
+                    showError(data.message);
+                }
+            } catch (error) {
+                showError('Failed to send OTP. Please try again.');
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = 'Send OTP';
+        }
+
+        async function handleVerifyOtp(e) {
+            e.preventDefault();
+
+            const otpInputs = document.querySelectorAll('.otp-input');
+            const otp = Array.from(otpInputs).map(input => input.value).join('');
+            const districtId = document.getElementById('district').value;
+
+            if (otp.length !== 6) {
+                showError('Please enter complete 6-digit OTP');
+                return;
+            }
+
+            if (!districtId) {
+                showError('Please select your district');
+                return;
+            }
+
+            const btn = document.getElementById('verifyOtpBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Verifying...';
+
+            try {
+                const response = await fetch('/api/auth/verify-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        mobileNumber: currentMobile,
+                        otp: otp,
+                        districtId: parseInt(districtId)
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userInfo', JSON.stringify({
+                        userId: data.userId,
+                        mobileNumber: data.mobileNumber,
+                        districtName: data.districtName
+                    }));
+
+                    showSuccess('Login successful! Redirecting...');
+
+                    setTimeout(() => {
+                        window.location.href = '/video-feed';
+                    }, 1500);
+                } else {
+                    showError(data.message);
+                }
+            } catch (error) {
+                showError('Verification failed. Please try again.');
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = 'Verify & Login';
+        }
+
+        async function resendOtp() {
+            if (otpResendTimer > 0) return;
+
+            try {
+                const response = await fetch('/api/auth/send-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ mobileNumber: currentMobile })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess('OTP resent successfully');
+                    startResendTimer();
+                } else {
+                    showError(data.message);
+                }
+            } catch (error) {
+                showError('Failed to resend OTP');
+            }
+        }
+
+        function startResendTimer() {
+            otpResendTimer = 30;
+            const btn = document.getElementById('resendOtpBtn');
+
+            const interval = setInterval(() => {
+                if (otpResendTimer <= 0) {
+                    clearInterval(interval);
+                    btn.textContent = 'Resend OTP';
+                    btn.disabled = false;
+                } else {
+                    btn.textContent = `Resend OTP (${otpResendTimer}s)`;
+                    btn.disabled = true;
+                    otpResendTimer--;
+                }
+            }, 1000);
+        }
+
+        function showStep(stepNumber) {
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+
+            successDiv.style.display = 'none';
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+
+            errorDiv.style.display = 'none';
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
+

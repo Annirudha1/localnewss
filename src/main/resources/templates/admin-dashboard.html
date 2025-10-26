@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalNews Admin - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .action-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .district-stats {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .district-stats h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .district-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .district-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .district-counts {
+            display: flex;
+            gap: 2rem;
+            color: #7f8c8d;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #7f8c8d;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛡️ LocalNews Admin Dashboard</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="container">
+        <div id="loadingSection" class="loading">
+            <div class="spinner"></div>
+            <div>Loading dashboard data...</div>
+        </div>
+
+        <div id="dashboardContent" style="display: none;">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalVideos">0</div>
+                    <div class="stat-label">Total Videos</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-number" id="totalUsers">0</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-number" id="verifiedUsers">0</div>
+                    <div class="stat-label">Verified Users</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-number">11</div>
+                    <div class="stat-label">Districts</div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <div class="action-card">
+                    <h3>📹 Video Management</h3>
+                    <p>Upload new videos, manage existing content, and view analytics.</p>
+                    <br>
+                    <a href="/admin/videos" class="action-btn">Manage Videos</a>
+                </div>
+
+                <div class="action-card">
+                    <h3>💬 Comments</h3>
+                    <p>View and moderate user comments on videos.</p>
+                    <br>
+                    <button class="action-btn" onclick="viewComments()">View Comments</button>
+                </div>
+
+                <div class="action-card">
+                    <h3>📊 Analytics</h3>
+                    <p>View detailed analytics and performance metrics.</p>
+                    <br>
+                    <button class="action-btn" onclick="viewAnalytics()">View Analytics</button>
+                </div>
+
+                <div class="action-card">
+                    <h3>👥 Users</h3>
+                    <p>Manage user accounts and view user statistics.</p>
+                    <br>
+                    <button class="action-btn" onclick="manageUsers()">Manage Users</button>
+                </div>
+            </div>
+
+            <div class="district-stats">
+                <h3>📍 District Statistics</h3>
+                <div id="districtList">
+                    <!-- District stats will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let adminToken = localStorage.getItem('adminToken');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!adminToken) {
+                window.location.href = '/admin';
+                return;
+            }
+
+            loadDashboardData();
+        });
+
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/api/admin/dashboard', {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.status === 401) {
+                    localStorage.removeItem('adminToken');
+                    window.location.href = '/admin';
+                    return;
+                }
+
+                if (response.ok) {
+                    const data = await response.json();
+                    updateDashboard(data);
+                } else {
+                    throw new Error('Failed to load dashboard data');
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                alert('Failed to load dashboard data');
+            }
+        }
+
+        function updateDashboard(data) {
+            // Update stats
+            document.getElementById('totalVideos').textContent = data.totalVideos || 0;
+            document.getElementById('totalUsers').textContent = data.totalUsers || 0;
+            document.getElementById('verifiedUsers').textContent = data.verifiedUsers || 0;
+
+            // Update district stats
+            const districtList = document.getElementById('districtList');
+            districtList.innerHTML = '';
+
+            if (data.districtStats) {
+                Object.entries(data.districtStats).forEach(([district, stats]) => {
+                    const item = document.createElement('div');
+                    item.className = 'district-item';
+                    item.innerHTML = `
+                        <div class="district-name">${district}</div>
+                        <div class="district-counts">
+                            <span>📹 ${stats.videos} videos</span>
+                            <span>👥 ${stats.users} users</span>
+                        </div>
+                    `;
+                    districtList.appendChild(item);
+                });
+            }
+
+            // Hide loading and show content
+            document.getElementById('loadingSection').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'block';
+        }
+
+        function viewComments() {
+            // TODO: Implement comments management
+            alert('Comments management coming soon!');
+        }
+
+        function viewAnalytics() {
+            // TODO: Implement analytics dashboard
+            alert('Analytics dashboard coming soon!');
+        }
+
+        function manageUsers() {
+            // TODO: Implement user management
+            alert('User management coming soon!');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                // Call backend logout endpoint
+                fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(() => {
+                    // Clear local storage
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminInfo');
+                    // Redirect to admin login page
+                    window.location.href = '/admin';
+                }).catch((error) => {
+                    console.error('Logout failed:', error);
+                    // Even if API call fails, clear local storage and redirect
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminInfo');
+                    window.location.href = '/admin';
+                });
+            }
+        }
+    </script>
+</body>
+</html>
