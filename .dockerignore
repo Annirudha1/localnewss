@@ -1,0 +1,9 @@
+# Ignore build artifacts and local configuration
+target
+.mvn
+.git
+.gitignore
+.idea
+.vscode
+**/*.log
+.DS_Store
