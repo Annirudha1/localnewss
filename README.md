@@ -5,7 +5,7 @@ LocalNews is a Spring Boot web application for local news handling (media/video 
 ## Requirements
 - Java 21 (as declared in `pom.xml`) - please install a compatible JDK
 - Maven 3.6+ (for build and test)
-- MySQL (or configure a compatible datasource)
+- PostgreSQL 15+ (or configure a compatible datasource)
 - Optional: AWS credentials if you plan to use S3/RDS/SecretsManager features
 
 ## Quick start (Windows PowerShell)

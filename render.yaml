@@ -20,8 +20,8 @@ services:
 databases:
   - name: local-news-db
     plan: starter
-    engine: mysql
-    version: "8"
+    engine: postgres
+    version: "15"
     region: oregon
 
 # Notes:
