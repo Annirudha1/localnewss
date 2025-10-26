@@ -1,0 +1,30 @@
+# Render manifest for LocalNews: creates a Docker Web Service and a managed MySQL database
+# Adjust `region` and `plan` according to your Render account and preferences.
+services:
+  - type: web
+    name: local-news-web
+    env: docker
+    repo: https://github.com/Annirudha1/localnewss.git
+    branch: main
+    plan: starter
+    buildCommand: mvn -B -DskipTests package
+    startCommand: bash -lc 'if [ -n "$DATABASE_URL" ]; then proto="$(echo $DATABASE_URL | sed -n "s,^\([a-z]*\)://.*$,\1,p")"; host="$(echo $DATABASE_URL | sed -n "s,^.*@\([^:]*\):\([0-9]*\)/.*$,\1,p")"; port="$(echo $DATABASE_URL | sed -n "s,^.*@[^:]*:\([0-9]*\)/.*$,\1,p")"; db="$(echo $DATABASE_URL | sed -n "s,.*/\([^/?]*\).*,\1,p")"; user="$(echo $DATABASE_URL | sed -n "s,^[^:]*://\([^:]*\):.*@.*$,\1,p")"; pass="$(echo $DATABASE_URL | sed -n "s,^[^:]*://[^:]*:\([^@]*\)@.*$,\1,p")"; export SPRING_DATASOURCE_URL="jdbc:${proto}://${host}:${port}/${db}"; export SPRING_DATASOURCE_USERNAME="$user"; export SPRING_DATASOURCE_PASSWORD="$pass"; fi; java $JAVA_OPTS -jar target/local-news.jar --server.port=${PORT:-8080}'
+    autoDeploy: true
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+    # Link to the managed database declared below so Render injects DATABASE_URL into the service
+    databases:
+      - local-news-db
+
+databases:
+  - name: local-news-db
+    plan: starter
+    engine: mysql
+    version: "8"
+    region: oregon
+
+# Notes:
+# - Render will create the managed database and inject a DATABASE_URL into the web service when linked.
+# - The service startCommand parses DATABASE_URL into Spring Boot env vars: SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD.
+# - Adjust `plan` and `region` to match your Render account limits (e.g., free/Starter/Standard). If you prefer Render to build with the Dockerfile, keep `env: docker`.
