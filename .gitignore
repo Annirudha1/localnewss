@@ -1,3 +1,30 @@
+# Maven / Java
+/target/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+.idea/
+.classpath
+.project
+.settings/
+/.vscode/
+.DS_Store
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+
+# OS files
+Thumbs.db
+ehthumbs.db
+
+# Maven specific
+.mvn/
 # Compiled class file
 *.class
 

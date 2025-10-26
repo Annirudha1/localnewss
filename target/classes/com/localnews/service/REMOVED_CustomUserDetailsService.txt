@@ -1,5 +1,0 @@
-// This file has been removed to resolve Spring bean conflict.
-// The application now uses only the UserDetailsServiceImpl in the config package.
-//
-// If you need this file again, it can be recreated with a different class name.
-

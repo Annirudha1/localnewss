@@ -1,3 +1,0 @@
-// This file has been removed to resolve bean conflict with UserDetailsServiceImpl
-// Only UserDetailsServiceImpl is now active
-
